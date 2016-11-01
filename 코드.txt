@@ -1,21 +1,157 @@
 <조이스틱>
-#include <Servo.h> 
-Servo pan;
-Servo tilt;
-int x_axis = A0;
-int y_axis = A1;
-void setup() 
-{ 
-   pan.attach(9);  
-   tilt.attach(10);  
-   Serial.begin(9600);
-   delay(10);
- }
-void loop() 
-{ 
-   pan.write(map(analogRead(x_axis), 0, 1000, 0, 180));
-   tilt.write(map(analogRead(y_axis), 0, 1000, 0, 180));
-   delay(10);
+//RX 모듈
+
+#include <SPI.h>
+#include "nRF24L01.h"
+#include "RF24.h"
+
+
+//CE, CSN 핀 선언 
+#define CE_PIN 7
+#define CSN_PIN 8
+
+#define motorLeftF  6
+#define motorLeftB  5
+#define motorRightF 10
+#define motorRightB 9
+
+
+
+//데이터 저장 배열  
+int joystick[3];
+
+//CE, CSN 핀설정
+RF24 radio(CE_PIN, CSN_PIN);
+
+//데이터 통신 할 타겟 선언
+const uint64_t pipe = 0xE8E8F0F0E1LL;
+ int x_value = 0, y_value = 0;
+
+void setup(void)
+{
+  
+  pinMode(motorLeftF,OUTPUT);
+  pinMode(motorLeftB,OUTPUT);
+  pinMode(motorRightF,OUTPUT);
+  pinMode(motorRightB,OUTPUT);
+  
+  Serial.begin(9600);
+  radio.begin();
+  radio.setPALevel(RF24_PA_MIN); // LOW, MAX
+  radio.openReadingPipe(1,pipe);
+  radio.startListening();
+}
+void loop(void)
+{
+  if ( radio.available() )
+  {
+      radio.read( joystick, sizeof(joystick) );
+        //전송된 좌표값에서 중간값(512) 제거
+      x_value = (joystick[0]-512)/2;  //음수이면 후진, 양수일때 전진
+      y_value = (joystick[1]-512)/2;  //음수일때 좌측, 양수일때 우측   
+  }
+
+  
+  //빨간 버튼이 눌렸을 경우 정지
+  if(joystick[2]==0){
+          analogWrite(motorLeftF, 0);
+          analogWrite(motorLeftB, 0);
+          analogWrite(motorRightF, 0);
+          analogWrite(motorRightB, 0);           
+        }
+  //y 값이 전진 일 경우
+  if(y_value>80){  
+        //우회전
+        if(x_value>80){
+         analogWrite(motorLeftF, 250);
+         analogWrite(motorLeftB, 0);
+         analogWrite(motorRightF, 150);
+         analogWrite(motorRightB, 0);
+         Serial.println("*S-R");          
+        }
+        //좌회전
+        else if(x_value < (-80)){
+          analogWrite(motorLeftF, 150);
+          analogWrite(motorLeftB, 0);
+          analogWrite(motorRightF, 250);
+          analogWrite(motorRightB, 0);   
+          Serial.println("*S-L*");     
+         }
+        //직진
+        else{
+          analogWrite(motorLeftF, 255);
+          analogWrite(motorLeftB, 0);
+          analogWrite(motorRightF, 255);
+          analogWrite(motorRightB, 0);
+          Serial.println("*S*");     
+        }
+
+  }
+  //x 값이 후진일 경우
+  else if(y_value < -80){
+        //후진 좌회전
+        if(x_value>80){
+          analogWrite(motorLeftF, 0);
+          analogWrite(motorLeftB, 250);
+          analogWrite(motorRightF, 0);
+          analogWrite(motorRightB, 150);
+          Serial.println("*B-R*");           
+        }
+        //후진 좌회전
+        else if(x_value < (-80)){
+          analogWrite(motorLeftF, 0);
+          analogWrite(motorLeftB, 150);
+          analogWrite(motorRightF, 0);
+          analogWrite(motorRightB, 250);
+          Serial.println("*B-L*");
+
+           
+        }
+        //후진
+        else{
+          analogWrite(motorLeftF, 0);
+          analogWrite(motorLeftB, 200);
+          analogWrite(motorRightF, 0);
+          analogWrite(motorRightB, 200);
+          Serial.println("*B*");
+         
+           
+        }
+
+
+  }
+
+  //80미만일 경우 정지
+  else {
+    //급격한 우측
+        if(x_value>80){
+          analogWrite(motorLeftF, 100);
+          analogWrite(motorLeftB, 0);
+          analogWrite(motorRightF, 0);
+          analogWrite(motorRightB, 0);
+          Serial.println("*R*");
+                   
+        }
+        //급격한 좌측
+        else if(x_value < (-80)){
+          analogWrite(motorLeftF, 0);
+          analogWrite(motorLeftB, 0);
+          analogWrite(motorRightF, 100);
+          analogWrite(motorRightB, 0);
+          Serial.println("*L*");
+           
+        }
+        //완전 정지
+        else{
+          analogWrite(motorLeftF,  0);
+          analogWrite(motorLeftB,  0);
+          analogWrite(motorRightF, 0);
+          analogWrite(motorRightB, 0);
+          Serial.println("*STOP*");
+
+           
+        }
+  }
 }
 
 
@@ -48,89 +184,63 @@ void loop() {
 
 
 <모터쉴드>
-// One DC motor & one Servo
+// Adafruit Motor shield library
+// copyright Adafruit Industries LLC, 2009
+// this code is public domain, enjoy!
 
-#include <Servo.h>
 #include <AFMotor.h>
+#include <Servo.h> 
 
-Servo servo;
-AF_DCMotor m1(2);
-
-// for Servo
-int servoPin = 9;
-int center = 95;
-int right = 65;
-int left = 125;
-
-// for DC motor
-int maxspeed = 200;
+// DC motor on M2
+AF_DCMotor motor(2);
+// DC hobby servo
+Servo servo1;
+// Stepper motor on M3+M4 48 steps per revolution
+AF_Stepper stepper(48, 2);
 
 void setup() {
-  // put your setup code here, to run once:
-  
-  // define serial output
   Serial.begin(9600);           // set up Serial library at 9600 bps
-  Serial.println("Motor test!");
-
-  // initializing servo
-  servo.attach(servoPin);
-  servo.write(center);
+  Serial.println("Motor party!");
   
-  // initializing DC motor
-  m1.setSpeed(200);
-  m1.run(RELEASE);
+  // turn on servo
+  servo1.attach(9);
+   
+  // turn on motor #2
+  motor.setSpeed(200);
+  motor.run(RELEASE);
 }
 
+int i;
+
+// Test the DC motor, stepper and servo ALL AT ONCE!
 void loop() {
-  // put your main code here, to run repeatedly:
+  motor.run(FORWARD);
+  for (i=0; i<255; i++) {
+    servo1.write(i);
+    motor.setSpeed(i);  
+    stepper.step(1, FORWARD, INTERLEAVE);
+    delay(3);
+ }
  
-  // move steering (servo)
-  Serial.print("right ");
-  servo.write(right);
-  delay(1000);
-  
-  Serial.print("Center ");
-  servo.write(center);
-  delay(2000);
-
-  Serial.print("Left ");
-  servo.write(left);
-  delay(1000);
-
-  
-  Serial.print("Center ");
-  servo.write(center);
-  delay(2000);
-
-  uint8_t i;
-
-// M1 control
-  Serial.print(" M1 Forward ");
-  
-  m1.run(FORWARD);
-  for (i=0; i<maxspeed; i++) {
-    m1.setSpeed(i);  
-    delay(10);
+  for (i=255; i!=0; i--) {
+    servo1.write(i-255);
+    motor.setSpeed(i);  
+    stepper.step(1, BACKWARD, INTERLEAVE);
+    delay(3);
  }
-
-  delay (2000);
-  for (i=maxspeed; i!=0; i--) {
-    m1.setSpeed(i);  
-    delay(10);
+ 
+  motor.run(BACKWARD);
+  for (i=0; i<255; i++) {
+    servo1.write(i);
+    motor.setSpeed(i);  
+    delay(3);
+    stepper.step(1, FORWARD, DOUBLE);
  }
- delay (2000);
-
- Serial.print(" M1 Backward ");
-
-  m1.run(BACKWARD);
-  for (i=0; i<maxspeed; i++) {
-    m1.setSpeed(i);  
-    delay(10);
+ 
+  for (i=255; i!=0; i--) {
+    servo1.write(i-255);
+    motor.setSpeed(i);  
+    stepper.step(1, BACKWARD, DOUBLE);
+    delay(3);
  }
- delay (2000);
-  for (i=maxspeed; i!=0; i--) {
-    m1.setSpeed(i);  
-    delay(10);
- }
- delay (2000);
 }
