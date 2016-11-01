@@ -1,0 +1,136 @@
+<조이스틱>
+#include <Servo.h> 
+Servo pan;
+Servo tilt;
+int x_axis = A0;
+int y_axis = A1;
+void setup() 
+{ 
+   pan.attach(9);  
+   tilt.attach(10);  
+   Serial.begin(9600);
+   delay(10);
+ }
+void loop() 
+{ 
+   pan.write(map(analogRead(x_axis), 0, 1000, 0, 180));
+   tilt.write(map(analogRead(y_axis), 0, 1000, 0, 180));
+   delay(10);
+}
+
+
+
+
+<적외선 센서>
+#define IRRX A0
+#define LED 13
+
+int val = 0;
+void setup() {
+  pinMode(LED, OUTPUT);
+  Serial.begin(9600);
+}
+
+void loop() {
+  int r = analogRead(IRRX);
+  if(r > 999){
+    digitalWrite(LED, HIGH);
+  }else{
+    digitalWrite(LED, LOW);
+  }
+  if( abs(r - val) > 0){
+    Serial.println(r);
+    val = r;
+    delay(100);
+  }
+}
+
+
+
+<모터쉴드>
+// One DC motor & one Servo
+
+#include <Servo.h>
+#include <AFMotor.h>
+
+Servo servo;
+AF_DCMotor m1(2);
+
+// for Servo
+int servoPin = 9;
+int center = 95;
+int right = 65;
+int left = 125;
+
+// for DC motor
+int maxspeed = 200;
+
+void setup() {
+  // put your setup code here, to run once:
+  
+  // define serial output
+  Serial.begin(9600);           // set up Serial library at 9600 bps
+  Serial.println("Motor test!");
+
+  // initializing servo
+  servo.attach(servoPin);
+  servo.write(center);
+  
+  // initializing DC motor
+  m1.setSpeed(200);
+  m1.run(RELEASE);
+}
+
+void loop() {
+  // put your main code here, to run repeatedly:
+ 
+  // move steering (servo)
+  Serial.print("right ");
+  servo.write(right);
+  delay(1000);
+  
+  Serial.print("Center ");
+  servo.write(center);
+  delay(2000);
+
+  Serial.print("Left ");
+  servo.write(left);
+  delay(1000);
+
+  
+  Serial.print("Center ");
+  servo.write(center);
+  delay(2000);
+
+  uint8_t i;
+
+// M1 control
+  Serial.print(" M1 Forward ");
+  
+  m1.run(FORWARD);
+  for (i=0; i<maxspeed; i++) {
+    m1.setSpeed(i);  
+    delay(10);
+ }
+
+  delay (2000);
+  for (i=maxspeed; i!=0; i--) {
+    m1.setSpeed(i);  
+    delay(10);
+ }
+ delay (2000);
+
+ Serial.print(" M1 Backward ");
+
+  m1.run(BACKWARD);
+  for (i=0; i<maxspeed; i++) {
+    m1.setSpeed(i);  
+    delay(10);
+ }
+ delay (2000);
+  for (i=maxspeed; i!=0; i--) {
+    m1.setSpeed(i);  
+    delay(10);
+ }
+ delay (2000);
+}
