@@ -1,23 +1,25 @@
-<적외선 센서>
-#define IRRX A0
-#define LED 13
 
-int val = 0;
-void setup() {
-  pinMode(LED, OUTPUT);
-  Serial.begin(9600);
+ 
+int T = 2; // INPUT PIN
+ 
+// 프로그램 시작 - 초기화 작업
+void setup()
+{
+ Serial.begin(115200); // 시리얼 통신 초기화
+ Serial.println("Arduino Examples - IR Sensor");
+ Serial.println(" http://docs.whiteat.com/?p=1142");
+ pinMode(T, INPUT);
 }
-
-void loop() {
-  int r = analogRead(IRRX);
-  if(r > 999){
-    digitalWrite(LED, HIGH);
-  }else{
-    digitalWrite(LED, LOW);
-  }
-  if( abs(r - val) > 0){
-    Serial.println(r);
-    val = r;
-    delay(100);
-  }
+ 
+void loop()
+{
+ if (LOW == digitalRead(T))
+ {
+ Serial.println("IR Detected"); // 감지됨
+ }
+ else
+ {
+ Serial.print("."); 
+ }
+ delay(100);
 }
