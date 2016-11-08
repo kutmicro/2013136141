@@ -2,10 +2,10 @@
  
 int T = 2; // INPUT PIN
  
-// ÇÁ·Î±×·¥ ½ÃÀÛ - ÃÊ±âÈ­ ÀÛ¾÷
+// í”„ë¡œê·¸ë¨ ì‹œì‘ - ì´ˆê¸°í™” ì‘ì—…
 void setup()
 {
- Serial.begin(115200); // ½Ã¸®¾ó Åë½Å ÃÊ±âÈ­
+ Serial.begin(115200); // ì‹œë¦¬ì–¼ í†µì‹  ì´ˆê¸°í™”
  Serial.println("Arduino Examples - IR Sensor");
  Serial.println(" http://docs.whiteat.com/?p=1142");
  pinMode(T, INPUT);
@@ -15,7 +15,7 @@ void loop()
 {
  if (LOW == digitalRead(T))
  {
- Serial.println("IR Detected"); // °¨ÁöµÊ
+ Serial.println("IR Detected"); // ê°ì§€ë¨
  }
  else
  {
