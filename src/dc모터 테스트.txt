@@ -1,0 +1,54 @@
+#include<AFMotor.h>        // 헤더파일 include 해줍니다.
+
+//M 1 에 DC모터 연결된 경우
+//M 2 에 DC모터 연결된 경우
+//M 3 에 DC모터 연결된 경우
+//M 4 에 DC모터 연결된 경우
+
+AF_DCMotor motor1(1); //
+AF_DCMotor motor2(2); //
+AF_DCMotor motor3(3); //
+AF_DCMotor motor4(4); //
+
+void setup() {
+ Serial.begin(9600);	// set up Serial libarary at 9600 bps
+ Serial.println("DC Motor 4 pcs test");
+
+ motor1.setSpeed(200);	// 최대 255
+ motor2.setSpeed(200);	// 최대 255
+ motor3.setSpeed(200);	// 최대 255
+ motor4.setSpeed(200);	// 최대 255
+
+ motor1.run(RELEASE);	// 정지와 같습니다. DC모터 정지
+ motor2.run(RELEASE);	// 정지와 같습니다. DC모터 정지
+ motor3.run(RELEASE);	// 정지와 같습니다. DC모터 정지
+ motor4.run(RELEASE);	// 정지와 같습니다. DC모터 정지
+
+ delay(2000);
+}
+
+
+//1초마다 1개씩 순차적으로 회전해봅니다.
+void loop()
+{
+  Serial.println("1");
+  motor1.run(FORWARD);
+  delay(1000);
+  motor1.run(RELEASE);
+
+Serial.println("2");
+  motor2.run(FORWARD);
+  delay(1000);
+  motor2.run(RELEASE);
+
+Serial.println("3");
+  motor3.run(FORWARD);
+  delay(1000);
+  motor3.run(RELEASE);
+
+Serial.println("4");
+  motor4.run(FORWARD);
+  delay(1000);
+  motor4.run(RELEASE);
+
+}
