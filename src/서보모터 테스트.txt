@@ -1,4 +1,4 @@
-<¸ðÅÍ½¯µå>
+<Â¸Ã°Ã…ÃÂ½Â¯ÂµÃ¥>
 // Adafruit Motor shield library
 // copyright Adafruit Industries LLC, 2009
 // this code is public domain, enjoy!
