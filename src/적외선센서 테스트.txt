@@ -1,6 +1,5 @@
 #include <DHT.h>
 
-<<<<<<< HEAD:src/적외선센서.txt
 const int irDetectPin = 3; //FC-51 Pin ����
 const int ledPin = 2;      //LED Pin ����
 
@@ -17,29 +16,3 @@ void loop() {
   else         //LOW ��, ���� �Ǿ��ٸ�
     digitalWrite(ledPin, 1); //LED ON
 }
-=======
- 
-int T = 2; // INPUT PIN
- 
-// 프로그램 시작 - 초기화 작업
-void setup()
-{
- Serial.begin(115200); // 시리얼 통신 초기화
- Serial.println("Arduino Examples - IR Sensor");
- Serial.println(" http://docs.whiteat.com/?p=1142");
- pinMode(T, INPUT);
-}
- 
-void loop()
-{
- if (LOW == digitalRead(T))
- {
- Serial.println("IR Detected"); // 감지됨
- }
- else
- {
- Serial.print("."); 
- }
- delay(100);
-}
->>>>>>> b68cdad8eaeacfb272c0cc7a18c383ef811f24f9:src/적외선센서 테스트.txt
