@@ -1,25 +1,18 @@
+#include <DHT.h>
 
- 
-int T = 2; // INPUT PIN
- 
-// 프로그램 시작 - 초기화 작업
-void setup()
-{
- Serial.begin(115200); // 시리얼 통신 초기화
- Serial.println("Arduino Examples - IR Sensor");
- Serial.println(" http://docs.whiteat.com/?p=1142");
- pinMode(T, INPUT);
+const int irDetectPin = 3; //FC-51 Pin 설정
+const int ledPin = 2;      //LED Pin 설정
+
+
+void setup() {  
+  pinMode(irDetectPin, INPUT); //FC-51 입력으로 설정
+  pinMode(ledPin, OUTPUT);     //LED 출력으로 설정
 }
- 
-void loop()
-{
- if (LOW == digitalRead(T))
- {
- Serial.println("IR Detected"); // 감지됨
- }
- else
- {
- Serial.print("."); 
- }
- delay(100);
+
+void loop() {  
+  int noDetect = digitalRead(irDetectPin); //FC-51 상태 읽어오기
+  if(noDetect) //FC-51포트가 HIGH이면 즉, 감지 안되었다면
+    digitalWrite(ledPin, 0); //LED Off
+  else         //LOW 즉, 감지 되었다면
+    digitalWrite(ledPin, 1); //LED ON
 }
