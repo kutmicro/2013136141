@@ -1,25 +1,18 @@
+#include <DHT.h>
 
- 
-int T = 2; // INPUT PIN
- 
-// í”„ë¡œê·¸ë¨ ì‹œì‘ - ì´ˆê¸°í™” ì‘ì—…
-void setup()
-{
- Serial.begin(115200); // ì‹œë¦¬ì–¼ í†µì‹  ì´ˆê¸°í™”
- Serial.println("Arduino Examples - IR Sensor");
- Serial.println(" http://docs.whiteat.com/?p=1142");
- pinMode(T, INPUT);
+const int irDetectPin = 3; //FC-51 Pin ¼³Á¤
+const int ledPin = 2;      //LED Pin ¼³Á¤
+
+
+void setup() {  
+  pinMode(irDetectPin, INPUT); //FC-51 ÀÔ·ÂÀ¸·Î ¼³Á¤
+  pinMode(ledPin, OUTPUT);     //LED Ãâ·ÂÀ¸·Î ¼³Á¤
 }
- 
-void loop()
-{
- if (LOW == digitalRead(T))
- {
- Serial.println("IR Detected"); // ê°ì§€ë¨
- }
- else
- {
- Serial.print("."); 
- }
- delay(100);
+
+void loop() {  
+  int noDetect = digitalRead(irDetectPin); //FC-51 »óÅÂ ÀĞ¾î¿À±â
+  if(noDetect) //FC-51Æ÷Æ®°¡ HIGHÀÌ¸é Áï, °¨Áö ¾ÈµÇ¾ú´Ù¸é
+    digitalWrite(ledPin, 0); //LED Off
+  else         //LOW Áï, °¨Áö µÇ¾ú´Ù¸é
+    digitalWrite(ledPin, 1); //LED ON
 }
