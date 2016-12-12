@@ -1,14 +1,14 @@
-적외선센서 + 서보모터 ( 장애물 감지  -> 서보모터 정지
-			장애물 감지x -> 서보모터 동작 )
-
 
 
 #include <AFMotor.h>
 #include <Servo.h> 
 #include <DHT.h>
 
-// DC motor on M2
-AF_DCMotor motor(2);
+// DC motor on M3
+AF_DCMotor motor3(3);
+// DC motor on M4
+AF_DCMotor motor4(4);
+
 // DC hobby servo
 Servo servo1;
 // Stepper motor on M3+M4 48 steps per revolution
@@ -27,9 +27,14 @@ void setup() {
   // turn on servo
   servo1.attach(9);
    
-  // turn on motor #2
-  motor.setSpeed(200);
-  motor.run(RELEASE);
+  // turn on motor #3
+  motor3.setSpeed(200);
+  motor3.run(RELEASE);
+
+  // turn on motor #4
+  motor4.setSpeed(200);
+  motor4.run(RELEASE);
+  
 }
 
 int i;
@@ -39,32 +44,38 @@ void loop() {
   if(noDetect) //FC-51포트가 HIGH이면 즉, 감지 안되었다면
     {
       digitalWrite(ledPin, 0); //LED Off
-     motor.run(FORWARD);
+     motor3.run(FORWARD);
+     motor4.run(FORWARD);
   for (i=0; i<255; i++) {
     servo1.write(i);
-    motor.setSpeed(i);  
+    motor3.setSpeed(i);
+    motor4.setSpeed(i);    
     stepper.step(1, FORWARD, INTERLEAVE);
     delay(1);
  }
  
   for (i=255; i!=0; i--) {
     servo1.write(i-255);
-    motor.setSpeed(i);  
+    motor3.setSpeed(i);
+    motor4.setSpeed(i);
     stepper.step(1, BACKWARD, INTERLEAVE);
     delay(1);
  }
  
-  motor.run(BACKWARD);
+  motor3.run(BACKWARD);
+  motor4.run(BACKWARD);
   for (i=0; i<255; i++) {
     servo1.write(i);
-    motor.setSpeed(i);  
+    motor3.setSpeed(i);
+    motor4.setSpeed(i); 
     delay(1);
     stepper.step(1, FORWARD, DOUBLE);
  }
  
   for (i=255; i!=0; i--) {
     servo1.write(i-255);
-    motor.setSpeed(i);  
+    motor3.setSpeed(i);
+    motor4.setSpeed(i); 
     stepper.step(1, BACKWARD, DOUBLE);
     delay(1);
  }
@@ -72,7 +83,8 @@ void loop() {
   else         //LOW 즉, 감지 되었다면
   {
     digitalWrite(ledPin, 1); //LED ON
-      motor.setSpeed(0);
+      motor3.setSpeed(0);
+      motor4.setSpeed(0);
   }
   
  

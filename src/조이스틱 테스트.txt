@@ -37,6 +37,12 @@ const int DButton = 9;
 const int leftButton = 4; 
 // right Button을 D5로 설정합니다. 
 const int rightButton = 5;
+// 부저를 D6으로 설정합니다.
+const int piezo = 6;
+// 톤 배열 수
+int numTones = 8;
+// 음계 표준 주파수(4옥타브) : 도, 레, 미, 파, 솔, 라, 시, 도
+int tones[] = {261, 294, 330, 349, 392, 440, 494, 523};
 #define DELAY 100
   
 void setup(){
@@ -50,6 +56,7 @@ void setup(){
   pinMode(CButton, INPUT_PULLUP);
   // D Button을 입력 핀으로 설정합니다.
   pinMode(DButton, INPUT_PULLUP);
+  pinMode(piezo, OUTPUT);
 }
 
 void loop(){
@@ -161,6 +168,15 @@ void loop(){
       // 프로세싱에 p 데이터를 전송합니다. 
       Serial.write('p');
       delay(DELAY);
+      for (int i = 0; i < numTones; i++) {
+      // 피에조 부저가 연결된 핀으로 지정된 주파수를 가지는 square-wave(구형파 또는 사각파)플 생성하도록 설정합니다.
+      // 도가 261Hz의 주파수를 가진다면, 1초에 261번의 square-wave을 발생신킨다는 의미입니다.
+          // 디지털은 0 과 1 (HIGH와 LOW)로 표현이되므로, 1초 동안에 0과 1의 변화를 261번 주는 것과 같습니다.
+      tone(piezo, tones[i]);
+      // 0.5초 동안 대기합니다.
+      delay(500);
+    }
+      noTone(piezo);
     }
   
     else{
